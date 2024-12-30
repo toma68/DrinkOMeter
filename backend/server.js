@@ -320,8 +320,9 @@ app.delete('/photo/:id', async (req, res) => {
       }
   
       // Supprimer le fichier du serveur
-      fs.unlinkSync(photo.filePath);
-  
+      const filePath = path.join(__dirname, photo.filePath);
+      fs.unlinkSync(filePath);
+        
       // Supprimer l'entrée de la base de données
       await photo.destroy();
   
