@@ -6,20 +6,6 @@ const { Sequelize, DataTypes } = require('sequelize');
 require('dotenv').config();
 const cors = require('cors');
 
-const multer = require('multer');
-const path = require('path');
-
-// Configuration de Multer
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Dossier où les fichiers seront enregistrés
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
-    },
-});
-const upload = multer({ storage });
-
 
 // App initialization
 const app = express();
@@ -179,8 +165,79 @@ app.post('/decrement', async (req, res) => {
 );
 
 
+//############### Implementation de la gestion des images ####################
+
+const multer = require('multer');
+const path = require('path');
+
+// Configuration de stockage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Répertoire où les fichiers seront stockés
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname)); // Nom unique
+  },
+});
+
+// Initialiser Multer
+const upload = multer({ storage });
+
+// utilitaires de compression
+const sharp = require('sharp');
+const fs = require('fs');
+
+// 7. Add drink with photo
+
+
+// Endpoint pour ajouter une boisson avec une photo compressée
+app.post('/addDrinkWithPhoto', upload.single('photo'), async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Vérifie et décode le token JWT
+    const decoded = jwt.verify(token, SECRET);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Vérifie si une photo a été téléchargée
+    if (!req.file) {
+      return res.status(400).json({ error: 'No photo uploaded' });
+    }
+
+    const inputPath = req.file.path; // Chemin original
+    const outputPath = `uploads/compressed-${req.file.filename}`; // Chemin compressé
+
+    // Compression de l'image
+    await sharp(inputPath)
+      .resize(800) // Redimensionne la largeur à 800px (la hauteur est ajustée automatiquement)
+      .jpeg({ quality: 70 }) // Convertit en JPEG avec une qualité de 70%
+      .toFile(outputPath);
+
+    // Supprime l'image originale non compressée
+    fs.unlinkSync(inputPath);
+
+    // Met à jour le compteur de boissons
+    user.drinkCount += 1;
+
+    // Enregistre la photo compressée (chemin relatif)
+    const photoPath = `/${outputPath}`;
+    await user.save();
+
+    res.json({
+      message: 'Drink added with compressed photo',
+      drinkCount: user.drinkCount,
+      photo: photoPath,
+    });
+  } catch (err) {
+    console.error('Error adding drink with photo:', err);
+    res.status(500).json({ error: 'Error adding drink with photo', details: err.message });
+  }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
-
