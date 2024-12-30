@@ -69,7 +69,8 @@
         <div class="flex justify-between items-center">
           <button
             @click="confirmDeletePhoto"
-            class="text-red-500 font-medium text-sm hover:underline"
+            disabled
+            class="text-gray-500 font-medium text-sm hover:underline"
           >
             Supprimer
           </button>
@@ -100,7 +101,7 @@ export default {
   data() {
     return {
       photos: [], // Stocke les photos récupérées
-      baseURL: process.env.VUE_APP_API_URL || "https://drinkometer.duckdns.org/api/photos/", // URL du backend
+      baseURL: process.env.VUE_APP_API_URL || "http://localhost:3003/photos/", // URL du backend
       selectedPhoto: null, // Photo sélectionnée pour l'aperçu en grand
     };
   },
@@ -113,8 +114,8 @@ export default {
   methods: {
     ...mapActions(['logout', 'saveDrinkCount']),
     getFileName(filePath) {
-      return filePath.split('/').pop(); // Récupère uniquement le nom du fichier
-    },
+    return filePath.split('/').pop(); // Récupère uniquement le nom du fichier
+  },
     async removeDrink() {
       try {
         if (this.user.drinkCount > 0) {

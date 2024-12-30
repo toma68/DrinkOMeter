@@ -5,6 +5,7 @@ import LoginView from '../views/LoginView.vue';
 import ProfileView from '../views/ProfileView.vue';
 import LeaderboardView from '../views/LeaderboardView.vue';
 import PhotoTakeView from '../views/PhotoTakeView.vue';
+import FilView from '../views/FilView.vue';
 import store from '../store'; // Import du store
 
 
@@ -14,6 +15,8 @@ const routes = [
   { path: '/profile', name: 'profile', component: ProfileView, meta: { requiresAuth: true }, },
   { path: '/leaderboard', name: 'leaderboard', component: LeaderboardView },
   { path: '/phototake', name: 'phototake', component: PhotoTakeView },
+  { path: '/fil', name: 'fil', component: FilView },
+
 
 ];
 

@@ -47,7 +47,7 @@
 
         <!-- Camera Icon -->
         <router-link
-          to="/phototake"
+          to="/fil"
           class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group"
         >
           <svg
@@ -60,7 +60,7 @@
               d="M12 5.25c-.2 0-.393.045-.572.13a3.375 3.375 0 0 0-1.128-.19H8.625l-.72-1.44a1.875 1.875 0 0 0-1.68-1.035H4.875C3.839 2.715 3 3.554 3 4.59v11.25c0 1.036.839 1.875 1.875 1.875h14.25c1.036 0 1.875-.839 1.875-1.875V8.25c0-1.036-.839-1.875-1.875-1.875h-3.6a3.375 3.375 0 0 0-1.128.19 1.875 1.875 0 0 0-.572-.13h-3.75ZM9.75 12a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 0 0-4.5 0Zm-1.5 0a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0Z"
             />
           </svg>
-          <span class="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">Photo</span>
+          <span class="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">Fil</span>
         </router-link>
 
         <!-- Login -->
