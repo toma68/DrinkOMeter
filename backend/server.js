@@ -237,6 +237,20 @@ app.post('/addDrinkWithPhoto', upload.single('photo'), async (req, res) => {
   }
 });
 
+// 8. Get a picture
+
+app.get('/photos/:filename', (req, res) => {
+    const filename = req.params.filename; // Récupère le nom du fichier depuis l'URL
+    const filePath = path.join(__dirname, 'uploads', filename); // Chemin complet du fichier
+  
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        console.error('Erreur lors de l’envoi du fichier :', err.message);
+        res.status(404).json({ error: 'Photo non trouvée' });
+      }
+    });
+  });
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
