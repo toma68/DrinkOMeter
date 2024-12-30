@@ -46,6 +46,27 @@ const User = sequelize.define('User', {
     },
 });
 
+// Photo model
+const Photo = sequelize.define('Photo', {
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    filePath: {
+      type: DataTypes.STRING, // Chemin de la photo
+      allowNull: false,
+    },
+    uploadedAt: {
+      type: DataTypes.DATE, // Date d'upload
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+  });
+  
+  // Associer les modèles
+  User.hasMany(Photo, { foreignKey: 'userId' });
+  Photo.belongsTo(User, { foreignKey: 'userId' });
+
 // Sync the database
 sequelize.sync({ force: false }).then(() => {
     console.log('Database connected and synced!');
@@ -193,49 +214,57 @@ const fs = require('fs');
 
 // Endpoint pour ajouter une boisson avec une photo compressée
 app.post('/addDrinkWithPhoto', upload.single('photo'), async (req, res) => {
-  const { token } = req.body;
-
-  try {
-    // Vérifie et décode le token JWT
-    const decoded = jwt.verify(token, SECRET);
-    const user = await User.findByPk(decoded.id);
-
-    if (!user) return res.status(404).json({ error: 'User not found' });
-
-    // Vérifie si une photo a été téléchargée
-    if (!req.file) {
-      return res.status(400).json({ error: 'No photo uploaded' });
+    const { token } = req.body;
+  
+    try {
+      // Vérifie et décode le token JWT
+      const decoded = jwt.verify(token, SECRET);
+      const user = await User.findByPk(decoded.id);
+  
+      if (!user) return res.status(404).json({ error: 'User not found' });
+  
+      // Vérifie si une photo a été téléchargée
+      if (!req.file) {
+        return res.status(400).json({ error: 'No photo uploaded' });
+      }
+  
+      const inputPath = req.file.path; // Chemin original
+      const outputPath = `uploads/compressed-${req.file.filename}`; // Chemin compressé
+  
+      // Compression de l'image
+      await sharp(inputPath)
+        .resize(800) // Redimensionne la largeur à 800px (la hauteur est ajustée automatiquement)
+        .jpeg({ quality: 70 }) // Convertit en JPEG avec une qualité de 70%
+        .toFile(outputPath);
+  
+      // Supprime l'image originale non compressée
+      fs.unlinkSync(inputPath);
+  
+      // Met à jour le compteur de boissons
+      user.drinkCount += 1;
+  
+      // Enregistre la photo compressée dans la table Photos
+      const newPhoto = await Photo.create({
+        userId: user.id,
+        filePath: `compressed-${req.file.filename}`,
+      });
+  
+      await user.save();
+  
+      res.json({
+        message: 'Drink added with compressed photo',
+        drinkCount: user.drinkCount,
+        photo: {
+          id: newPhoto.id,
+          filePath: newPhoto.filePath,
+          uploadedAt: newPhoto.uploadedAt,
+        },
+      });
+    } catch (err) {
+      console.error('Error adding drink with photo:', err);
+      res.status(500).json({ error: 'Error adding drink with photo', details: err.message });
     }
-
-    const inputPath = req.file.path; // Chemin original
-    const outputPath = `uploads/compressed-${req.file.filename}`; // Chemin compressé
-
-    // Compression de l'image
-    await sharp(inputPath)
-      .resize(800) // Redimensionne la largeur à 800px (la hauteur est ajustée automatiquement)
-      .jpeg({ quality: 70 }) // Convertit en JPEG avec une qualité de 70%
-      .toFile(outputPath);
-
-    // Supprime l'image originale non compressée
-    fs.unlinkSync(inputPath);
-
-    // Met à jour le compteur de boissons
-    user.drinkCount += 1;
-
-    // Enregistre la photo compressée (chemin relatif)
-    const photoPath = `/${outputPath}`;
-    await user.save();
-
-    res.json({
-      message: 'Drink added with compressed photo',
-      drinkCount: user.drinkCount,
-      photo: photoPath,
-    });
-  } catch (err) {
-    console.error('Error adding drink with photo:', err);
-    res.status(500).json({ error: 'Error adding drink with photo', details: err.message });
-  }
-});
+  });
 
 // 8. Get a picture
 
@@ -249,6 +278,61 @@ app.get('/photos/:filename', (req, res) => {
         res.status(404).json({ error: 'Photo non trouvée' });
       }
     });
+  });
+
+// 9. Get user photos
+app.get('/user/:id/photos', async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const photos = await Photo.findAll({
+        where: { userId },
+        order: [['uploadedAt', 'DESC']],
+        attributes: ['id', 'filePath', 'uploadedAt'],
+      });
+  
+      if (photos.length === 0) {
+        return res.status(404).json({ error: 'No photos found for this user' });
+      }
+  
+      res.json(photos);
+    } catch (err) {
+      console.error('Error fetching photos:', err);
+      res.status(500).json({ error: 'Error fetching photos', details: err.message });
+    }
+  });
+
+// 10. Delete a photo
+app.delete('/photo/:id', async (req, res) => {
+    const { token } = req.body;
+  
+    try {
+      // Décoder le token JWT pour récupérer l'ID de l'utilisateur
+      const decoded = jwt.verify(token, SECRET);
+      const userId = decoded.id;
+  
+      // Rechercher la photo par ID
+      const photo = await Photo.findByPk(req.params.id);
+  
+      if (!photo) {
+        return res.status(404).json({ error: 'Photo not found' });
+      }
+  
+      // Vérifier que l'utilisateur connecté est bien le propriétaire de la photo
+      if (photo.userId !== userId) {
+        return res.status(403).json({ error: 'Unauthorized to delete this photo' });
+      }
+  
+      // Supprimer le fichier du serveur
+      fs.unlinkSync(photo.filePath);
+  
+      // Supprimer l'entrée de la base de données
+      await photo.destroy();
+  
+      res.json({ message: 'Photo supprimée avec succès' });
+    } catch (err) {
+      console.error('Erreur lors de la suppression de la photo :', err.message);
+      res.status(500).json({ error: 'Impossible de supprimer la photo', details: err.message });
+    }
   });
 
 // Start the server
