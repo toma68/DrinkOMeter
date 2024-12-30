@@ -121,8 +121,10 @@ export default {
       email: this.loginEmail,
       password: this.loginPassword,
     });
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userInfos));
+    // Enregistrement du token et des informations de l'utilisateur dans le localStorage
+
+    localStorage.setItem('token', response.data.token);
+    localStorage.setItem('user', JSON.stringify(response.data.userInfos));
     this.$store.dispatch('saveToken', response.data.token);
     this.$store.dispatch('saveUser', response.data.userInfos);
     console.log('Connexion réussie :', response.data);

@@ -20,7 +20,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth && !store.getters.isAuthenticated) {
+  if (to.meta.requiresAuth && (store.state.token === null || store.state.user === null)) {
     next({ path: '/login', query: { redirect: to.fullPath } });
   } else {
     next();
