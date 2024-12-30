@@ -11,17 +11,18 @@
     <!-- Boutons pour capturer une photo et télécharger -->
     <div class="w-full flex flex-col items-center gap-4 mt-4">
       <label class="cursor-pointer">
-        <input type="file" accept="image/*" capture="environment" @change="onFileChange" class="hidden" />
+        <input type="file" accept="image/*" capture="user" @change="onFileChange" class="hidden" />
         <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg focus:outline-none hover:shadow-xl">
           📸
         </div>
       </label>
       <button
-        v-if="photoBlob"
+        :disabled="isUploading"
         @click="uploadPhoto"
-        class="w-16 h-16 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-full flex items-center justify-center shadow-lg focus:outline-none hover:shadow-xl"
+        class="w-16 h-16 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-full flex items-center justify-center shadow-lg focus:outline-none hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        ⬆️
+        <span v-if="isUploading" class="loader"></span>
+        <span v-else>⬆️</span>
       </button>
     </div>
   </div>
@@ -35,6 +36,7 @@ export default {
     return {
       photoPreview: null, // Stocke l'aperçu de la photo sélectionnée
       photoBlob: null, // Stocke la photo sous forme de Blob
+      isUploading: false, // Indique si la requête est en cours
     };
   },
   methods: {
@@ -53,6 +55,7 @@ export default {
         return;
       }
 
+      this.isUploading = true; // Marque le début de l'envoi
       try {
         const formData = new FormData();
         formData.append('photo', this.photoBlob, 'photo.jpg');
@@ -67,6 +70,8 @@ export default {
       } catch (error) {
         console.error('Erreur lors de l’envoi de la photo :', error);
         alert('Impossible d’envoyer la photo. Veuillez réessayer.');
+      } finally {
+        this.isUploading = false; // Marque la fin de l'envoi
       }
     },
     resetPhoto() {
@@ -84,5 +89,30 @@ button {
 }
 button:hover {
   transform: scale(1.1);
+}
+
+/* Loader animation */
+.loader {
+  border: 3px solid #f3f3f3; /* Gris clair */
+  border-top: 3px solid #3498db; /* Bleu */
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Bouton désactivé */
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>
