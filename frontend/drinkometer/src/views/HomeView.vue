@@ -1,13 +1,24 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-between bg-gradient-to-b from-purple-500 to-pink-500 p-6" style="min-height: 90vh; padding-bottom: 10vh;">
+  <div class="min-h-screen flex flex-col items-center justify-between bg-gradient-to-b from-purple-500 to-pink-500 p-6" style="min-height: 90vh; padding-bottom:10vh ;">
     <h1 class="text-3xl font-bold text-white mt-6">Drink'O'Meter</h1>
     <p class="text-lg text-gray-200 mt-2">2025, une année, un défi. Suivez votre compteur ! 🍹</p>
 
     <!-- Jauge circulaire -->
     <div class="relative mt-8 w-64 h-64">
+      <!-- Cercle extérieur -->
       <div class="absolute inset-0 rounded-full bg-white opacity-20"></div>
+      <!-- SVG pour la jauge -->
       <svg class="w-64 h-64">
-        <circle cx="128" cy="128" r="100" stroke="rgba(255, 255, 255, 0.3)" stroke-width="16" fill="none" />
+        <!-- Cercle arrière -->
+        <circle
+          cx="128"
+          cy="128"
+          r="100"
+          stroke="rgba(255, 255, 255, 0.3)"
+          stroke-width="16"
+          fill="none"
+        />
+        <!-- Cercle avant (progression) -->
         <circle
           cx="128"
           cy="128"
@@ -20,6 +31,7 @@
           class="transition-all duration-500"
         />
       </svg>
+      <!-- Texte au centre -->
       <div class="absolute inset-0 flex flex-col items-center justify-center">
         <span class="text-4xl font-bold text-white">{{ drinks }}</span>
         <span class="text-sm text-gray-300">/ {{ goal }} verres</span>
@@ -34,28 +46,8 @@
       +
     </button>
 
-    <!-- Formulaire pour ajouter une boisson avec une photo -->
-    <form @submit.prevent="uploadPhoto" class="mt-6 w-full max-w-xs flex flex-col items-center">
-      <label for="photo" class="block text-sm font-medium text-gray-100 mb-2">Prendre une photo</label>
-      <input
-        id="photo"
-        type="file"
-        accept="image/*"
-        capture="environment"
-        @change="onPhotoCapture"
-        class="w-full mb-4 border border-gray-300 rounded-lg p-2"
-      />
-      <!-- Aperçu de la photo -->
-      <div v-if="preview" class="mb-4">
-        <img :src="preview" alt="Aperçu de la photo" class="max-w-full rounded-lg shadow-md" />
-      </div>
-      <button
-        type="submit"
-        class="w-full bg-gradient-to-r from-blue-500 to-green-500 hover:from-green-500 hover:to-blue-500 text-white font-medium py-2 rounded-lg shadow-md"
-      >
-        Ajouter une boisson avec une photo
-      </button>
-    </form>
+    <!-- Message sous le bouton -->
+    <p class="text-sm text-gray-200 mt-4">Appuyez sur le bouton pour ajouter un verre</p>
 
     <!-- Bouton d'information -->
     <button
@@ -96,8 +88,6 @@ export default {
     return {
       goal: 2025, // Objectif total
       infoVisible: false, // Contrôle la visibilité du modal d'information
-      photo: null, // Stocke le fichier capturé
-      preview: null, // Stocke l'aperçu de la photo
     };
   },
   computed: {
@@ -115,46 +105,19 @@ export default {
         this.$store.dispatch('saveDrinkCount', response.data.drinkCount);
       } catch (error) {
         console.error('Erreur de connexion :', error.response?.data || error.message);
-        alert('Erreur de connexion. Vérifiez que vous êtes bien connecté à internet, puis réessayez.');
-      }
-    },
-    onPhotoCapture(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.photo = file;
-        this.preview = URL.createObjectURL(file); // Crée un aperçu
-      }
-    },
-    async uploadPhoto() {
-      if (!this.photo) {
-        alert('Veuillez capturer une photo avant de l’envoyer.');
-        return;
-      }
-
-      try {
-        const formData = new FormData();
-        formData.append('photo', this.photo);
-        formData.append('token', this.$store.getters.getToken);
-
-        const response = await api.post('/addDrinkWithPhoto', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-
-        this.$store.dispatch('saveDrinkCount', response.data.drinkCount);
-        alert('Boisson ajoutée avec succès !');
-        this.preview = null;
-        this.photo = null;
-      } catch (error) {
-        console.error('Erreur lors de l’ajout de la photo :', error.response?.data || error.message);
-        alert('Impossible d’ajouter la photo. Réessayez.');
+        alert('Erreur de connexion. Vérifiez que vous êtes bien connecté à internet, puis réésayez.');
       }
     },
     showInfo() {
-      this.infoVisible = true;
+      this.infoVisible = true; // Affiche le modal
     },
     closeInfo() {
-      this.infoVisible = false;
+      this.infoVisible = false; // Cache le modal
     },
   },
 };
 </script>
+
+<style scoped>
+/* Aucun style personnalisé requis grâce à Tailwind */
+</style>

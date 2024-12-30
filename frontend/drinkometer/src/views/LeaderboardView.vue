@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-purple-500 to-pink-500 p-6" style="height: 100vh;">
+  <div class="min-h-screen bg-gradient-to-b from-purple-500 to-pink-500 p-6" style="min-height: 90vh; padding-bottom:10vh ;">
     <h1 class="text-3xl font-bold text-white text-center mb-6">Classement</h1>
 
     <!-- Podium -->

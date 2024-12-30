@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-500 to-pink-500 p-6" style="height: 100vh;">
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-500 to-pink-500 p-6" style="min-height: 90vh; padding-bottom:10vh ;">
     <!-- Formulaire combiné -->
     <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
       <div class="flex justify-around border-b border-gray-200 pb-4 mb-6">
