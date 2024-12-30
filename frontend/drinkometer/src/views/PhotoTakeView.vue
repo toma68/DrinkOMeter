@@ -1,21 +1,21 @@
 <template>
   <div class="min-h-screen flex flex-col items-center justify-between bg-gradient-to-b from-purple-500 to-pink-500 p-6" style="min-height: 92vh; padding-bottom:8vh;">
-    <!-- Aperçu de la caméra -->
-    <div class="flex-1 w-full relative">
-      <video ref="video" autoplay playsinline class="absolute inset-0 w-full h-full object-cover"></video>
-
-      <!-- Aperçu de la photo capturée -->
-      <canvas ref="canvas" class="absolute inset-0 right-4 h-full hidden"></canvas>
+    <!-- Aperçu de la photo capturée ou téléchargée -->
+    <div class="flex-1 w-full relative flex items-center justify-center">
+      <img v-if="photoPreview" :src="photoPreview" alt="Aperçu de la photo" class="w-full h-full object-contain" />
+      <div v-else class="flex items-center justify-center text-gray-100">
+        <p>Aucune photo sélectionnée ou capturée.</p>
+      </div>
     </div>
 
     <!-- Boutons pour capturer une photo et télécharger -->
-    <div class="w-full flex justify-center gap-4 mt-4">
-      <button
-        @click="capturePhoto"
-        class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg focus:outline-none hover:shadow-xl"
-      >
-        📸
-      </button>
+    <div class="w-full flex flex-col items-center gap-4 mt-4">
+      <label class="cursor-pointer">
+        <input type="file" accept="image/*" capture="environment" @change="onFileChange" class="hidden" />
+        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg focus:outline-none hover:shadow-xl">
+          📸
+        </div>
+      </label>
       <button
         v-if="photoBlob"
         @click="uploadPhoto"
@@ -30,52 +30,26 @@
 <script>
 import api from '../api';
 
-
 export default {
   data() {
     return {
-      videoStream: null, // Flux vidéo de la caméra
-      photoBlob: null, // Stocke la photo capturée sous forme de fichier
+      photoPreview: null, // Stocke l'aperçu de la photo sélectionnée
+      photoBlob: null, // Stocke la photo sous forme de Blob
     };
   },
   methods: {
-    async startCamera() {
-      try {
-        // Demande l'accès à la caméra
-        this.videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
-        this.$refs.video.srcObject = this.videoStream;
-      } catch (error) {
-        alert('Impossible d’accéder à la caméra : ' + error.message);
+    onFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.photoBlob = file;
+
+        // Crée un aperçu de l'image
+        this.photoPreview = URL.createObjectURL(file);
       }
-    },
-    capturePhoto() {
-      const video = this.$refs.video;
-      const canvas = this.$refs.canvas;
-
-      // Configure le canvas pour conserver l'aspect ratio
-      const aspectRatio = video.videoWidth / video.videoHeight;
-      const width = 640; // Largeur standard pour la capture
-      const height = width / aspectRatio;
-
-      canvas.width = width;
-      canvas.height = height;
-
-      // Dessine l'image de la vidéo sur le canvas sans déformer
-      const context = canvas.getContext('2d');
-      context.drawImage(video, 0, 0, width, height);
-
-      // Convertit le contenu du canvas en Blob (fichier photo)
-      canvas.toBlob((blob) => {
-        this.photoBlob = blob; // Stocke le Blob pour l'envoi
-      }, 'image/jpeg');
-
-      // Affiche l'aperçu de la photo capturée
-      video.classList.add('hidden');
-      canvas.classList.remove('hidden');
     },
     async uploadPhoto() {
       if (!this.photoBlob) {
-        alert('Veuillez capturer une photo avant de l’envoyer.');
+        alert('Veuillez sélectionner ou capturer une photo avant de l’envoyer.');
         return;
       }
 
@@ -89,26 +63,16 @@ export default {
         });
 
         alert('Photo envoyée avec succès !');
-        this.resetCamera();
+        this.resetPhoto();
       } catch (error) {
         console.error('Erreur lors de l’envoi de la photo :', error);
         alert('Impossible d’envoyer la photo. Veuillez réessayer.');
       }
     },
-    resetCamera() {
+    resetPhoto() {
+      this.photoPreview = null;
       this.photoBlob = null;
-      this.$refs.video.classList.remove('hidden');
-      this.$refs.canvas.classList.add('hidden');
     },
-  },
-  mounted() {
-    this.startCamera();
-  },
-  beforeDestroy() {
-    // Arrête le flux vidéo lorsque le composant est détruit
-    if (this.videoStream) {
-      this.videoStream.getTracks().forEach((track) => track.stop());
-    }
   },
 };
 </script>
