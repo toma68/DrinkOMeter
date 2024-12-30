@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-between bg-gradient-to-b from-purple-500 to-pink-500 p-6" style="height: 100vh;">
+  <div class="min-h-screen flex flex-col items-center justify-between bg-gradient-to-b from-purple-500 to-pink-500 p-6" style="min-height: 90vh; padding-bottom: 10vh;">
     <h1 class="text-3xl font-bold text-white mt-6">Drink'O'Meter</h1>
     <p class="text-lg text-gray-200 mt-2">2025, une année, un défi. Suivez votre compteur ! 🍹</p>
 
