@@ -22,7 +22,7 @@
         class="w-16 h-16 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-full flex items-center justify-center shadow-lg focus:outline-none hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span v-if="isUploading" class="loader"></span>
-        <span v-else>⬆️</span>
+        <span v-else>✅</span>
       </button>
     </div>
   </div>
