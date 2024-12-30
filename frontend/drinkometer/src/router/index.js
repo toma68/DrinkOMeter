@@ -4,6 +4,7 @@ import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/LoginView.vue';
 import ProfileView from '../views/ProfileView.vue';
 import LeaderboardView from '../views/LeaderboardView.vue';
+import PhotoTakeView from '../views/PhotoTakeView.vue';
 import store from '../store'; // Import du store
 
 
@@ -12,6 +13,8 @@ const routes = [
   { path: '/login', name: 'login', component: LoginView },
   { path: '/profile', name: 'profile', component: ProfileView, meta: { requiresAuth: true }, },
   { path: '/leaderboard', name: 'leaderboard', component: LeaderboardView },
+  { path: '/phototake', name: 'phototake', component: PhotoTakeView },
+
 ];
 
 const router = createRouter({

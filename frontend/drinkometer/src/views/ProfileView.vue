@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-500 to-pink-500 p-6" style="min-height: 90vh; padding-bottom:10vh ;">
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-500 to-pink-500 p-6" style="min-height: 92vh; padding-bottom:8vh ;">
     <div class="w-full max-w-lg bg-white rounded-lg shadow-lg p-8">
       <h1 class="text-2xl font-bold text-gray-700 text-center mb-6">Mon Profil</h1>
       <div v-if="user" class="space-y-4">
