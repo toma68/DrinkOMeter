@@ -100,7 +100,7 @@ export default {
   data() {
     return {
       photos: [], // Stocke les photos récupérées
-      baseURL: process.env.VUE_APP_API_URL || "http://localhost:3003/photos/", // URL du backend
+      baseURL: process.env.VUE_APP_API_URL || "https://drinkometer.duckdns.org/api/photos/", // URL du backend
       selectedPhoto: null, // Photo sélectionnée pour l'aperçu en grand
     };
   },
