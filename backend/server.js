@@ -62,12 +62,28 @@ const Photo = sequelize.define('Photo', {
       defaultValue: DataTypes.NOW,
     },
   });
+
+  const Like = sequelize.define('Like', {
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    photoId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+  });
   
-  // Associer les modèles
+  // Associations
+  Like.belongsTo(User, { foreignKey: 'userId' });
+  Like.belongsTo(Photo, { foreignKey: 'photoId' });
+  Photo.hasMany(Like, { foreignKey: 'photoId' });
+  User.hasMany(Like, { foreignKey: 'userId' });
   User.hasMany(Photo, { foreignKey: 'userId' });
   Photo.belongsTo(User, { foreignKey: 'userId' });
 
 // Sync the database
+sequelize.sync({ alter: true });//supprimer
 sequelize.sync({ force: false }).then(() => {
     console.log('Database connected and synced!');
 });
@@ -322,7 +338,7 @@ app.delete('/photo/:id', async (req, res) => {
       // Supprimer le fichier du serveur
       const filePath = path.join(__dirname, photo.filePath);
       fs.unlinkSync(filePath);
-        
+
       // Supprimer l'entrée de la base de données
       await photo.destroy();
   
@@ -330,6 +346,74 @@ app.delete('/photo/:id', async (req, res) => {
     } catch (err) {
       console.error('Erreur lors de la suppression de la photo :', err.message);
       res.status(500).json({ error: 'Impossible de supprimer la photo', details: err.message });
+    }
+  });
+
+// 11. Get recent photos
+const { Op } = require('sequelize');
+
+app.get('/photos-recent', async (req, res) => {
+    try {
+      const now = new Date();
+      const yesterday = new Date();
+      yesterday.setDate(now.getDate() - 1);
+  
+      const photos = await Photo.findAll({
+        where: {
+          uploadedAt: {
+            [Op.gte]: yesterday, // Photos postées dans les dernières 24 heures
+          },
+        },
+        include: [
+          { model: User, attributes: ['id', 'username'] }, // Inclure l'utilisateur
+          { model: Like, attributes: ['userId'] }, // Inclure les likes
+        ],
+        order: [['uploadedAt', 'DESC']],
+      });
+  
+  
+      res.json(photos);
+    } catch (err) {
+      console.error('Erreur lors de la récupération des photos récentes :', err.message);
+      res.status(500).json({ error: 'Erreur lors de la récupération des photos récentes', details: err.message });
+    }
+  });
+
+
+// 12. Like a photo
+app.post('/photo/:id/like', async (req, res) => {
+    const { token } = req.body;
+  
+    try {
+      const decoded = jwt.verify(token, SECRET);
+      const userId = decoded.id;
+  
+      const photo = await Photo.findByPk(req.params.id);
+  
+      if (!photo) {
+        return res.status(404).json({ error: 'Photo non trouvée' });
+      }
+  
+      // Vérifie si l'utilisateur a déjà liké cette photo
+      const existingLike = await Like.findOne({
+        where: { userId, photoId: photo.id },
+      });
+  
+      if (existingLike) {
+        return res.status(400).json({ error: 'Vous avez déjà liké cette photo' });
+      }
+  
+      // Enregistre le like
+      await Like.create({ userId, photoId: photo.id });
+  
+      // Incrémente le compteur de likes de la photo
+      photo.likes += 1;
+      await photo.save();
+  
+      res.json({ message: 'Photo likée avec succès', likes: photo.likes });
+    } catch (err) {
+      console.error('Erreur lors du like de la photo :', err.message);
+      res.status(500).json({ error: 'Erreur lors du like de la photo', details: err.message });
     }
   });
 
