@@ -10,7 +10,7 @@
           🥈
         </div>
         <p class="text-white text-sm mt-2">{{ podium[1]?.username || '---' }}</p>
-        <p class="text-gray-300 text-xs">{{ podium[1]?.score || '0' }} verres</p>
+        <p class="text-gray-300 text-xs">{{ podium[1]?.drinkCount || '0' }} verres</p>
       </div>
 
       <!-- 1ère place -->
@@ -19,7 +19,7 @@
           🥇
         </div>
         <p class="text-white text-sm mt-2">{{ podium[0]?.username || '---' }}</p>
-        <p class="text-gray-300 text-xs">{{ podium[0]?.score || '0' }} verres</p>
+        <p class="text-gray-300 text-xs">{{ podium[0]?.drinkCount || '0' }} verres</p>
       </div>
 
       <!-- 3ème place -->
@@ -28,7 +28,7 @@
           🥉
         </div>
         <p class="text-white text-sm mt-2">{{ podium[2]?.username || '---' }}</p>
-        <p class="text-gray-300 text-xs">{{ podium[2]?.score || '0' }} verres</p>
+        <p class="text-gray-300 text-xs">{{ podium[2]?.drinkCount || '0' }} verres</p>
       </div>
     </div>
 
@@ -44,7 +44,7 @@
           <span class="text-gray-800 font-medium">
             {{ index + 4 }}. {{ user.username }}
           </span>
-          <span class="text-gray-500 text-sm">{{ user.score }} verres</span>
+          <span class="text-gray-500 text-sm">{{ user.drinkCount }} verres</span>
         </li>
       </ul>
     </div>
@@ -65,7 +65,7 @@ export default {
     async fetchLeaderboard() {
       try {
         const response = await api.get('/leaderboard');
-        const sortedUsers = response.data.sort((a, b) => b.score - a.score); // Trie par score décroissant
+        const sortedUsers = response.data.sort((a, b) => b.drinkCount - a.drinkCount); // Trie par drinkCount décroissant
         this.podium = sortedUsers.slice(0, 3); // Les 3 premiers
         this.otherUsers = sortedUsers.slice(3); // Les autres utilisateurs
       } catch (error) {

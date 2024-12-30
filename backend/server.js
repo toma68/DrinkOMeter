@@ -157,25 +157,27 @@ app.get('/user/:id', async (req, res) => {
     }
 });
 
-// 6. Update profile picture
+// 6. Decrement
 
-app.post('/user/:id/profilePicture', upload.single('profilePicture'), async (req, res) => {
+app.post('/decrement', async (req, res) => {
+    const { token } = req.body;
+
     try {
-        const user = await User.findByPk(req.params.id);
+        const decoded = jwt.verify(token, SECRET);
+        const user = await User.findByPk(decoded.id);
+
         if (!user) return res.status(404).json({ error: 'User not found' });
 
-        // Met à jour le champ `profilePicture` avec le chemin du fichier
-        user.profilePicture = `/uploads/${req.file.filename}`;
+        user.drinkCount -= 1;
         await user.save();
 
-        res.json({ message: 'Profile picture updated successfully', profilePicture: user.profilePicture });
+        res.json({ message: 'Drink count updated', drinkCount: user.drinkCount });
     } catch (err) {
-        res.status(500).json({ error: 'Error updating profile picture', details: err.message });
+        res.status(401).json({ error: 'Unauthorized', details: err.message });
     }
-});
+}
+);
 
-// 7. Get profile picture
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Start the server
 app.listen(PORT, () => {

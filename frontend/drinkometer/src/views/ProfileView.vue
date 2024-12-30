@@ -17,8 +17,14 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700">Boissons</label>
-          <div class="mt-1 block w-full p-3 border border-gray-300 rounded-lg bg-gray-100 shadow-sm sm:text-sm">
+          <div class="mt-1 block w-full p-3 border border-gray-300 rounded-lg bg-gray-100 shadow-sm sm:text-sm flex justify-between items-center">
             {{ user.drinkCount }}
+            <button
+              @click="removeDrink"
+              class="text-red-500 hover:text-red-700 font-medium text-sm"
+            >
+              -1
+            </button>
           </div>
         </div>
       </div>
@@ -34,9 +40,9 @@
     </div>
   </div>
 </template>
-
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import api from '../api'; // Assure-toi d'avoir une instance Axios configurée
 
 export default {
   computed: {
@@ -46,10 +52,25 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['logout']),
-    formatDate(date) {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return new Date(date).toLocaleDateString('fr-FR', options);
+    ...mapActions(['logout', 'saveDrinkCount']), // Ajoute une action pour sauvegarder le compteur
+
+    async removeDrink() {
+      try {
+        // Vérifie que le compteur est supérieur à zéro avant de décrémenter
+        if (this.user.drinkCount > 0) {
+          const response = await api.post('/decrement', {
+            token: this.$store.state.token, // Passe le token pour authentifier l'utilisateur
+          });
+
+          // Mets à jour le compteur dans le store Vuex
+          this.$store.dispatch('saveDrinkCount', response.data.drinkCount);
+        } else {
+          alert("Le compteur est déjà à zéro !");
+        }
+      } catch (error) {
+        console.error('Erreur lors de la décrémentation :', error.response?.data || error.message);
+        alert('Impossible de décrémenter le compteur. Veuillez réessayer.');
+      }
     },
   },
 };

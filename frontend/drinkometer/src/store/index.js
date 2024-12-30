@@ -19,6 +19,8 @@ const store = createStore({
     },
     setDrinkCount(state, drinkCount) {
       state.user.drinkCount = drinkCount;
+      localStorage.setItem('user', JSON.stringify(state.user));
+
     },
     updateProfilePicture(state, profilePicture) {
       state.user.profilePicture = profilePicture;
@@ -37,18 +39,6 @@ const store = createStore({
     },
     saveDrinkCount({ commit }, drinkCount) {
       commit('setDrinkCount', drinkCount);
-    },
-    async updateProfilePicture({ commit }, formData) {
-      try {
-        const response = await api.post(`/user/${state.user.id}/profilePicture`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        commit('updateProfilePicture', response.data.profilePicture);
-        return response;
-      } catch (error) {
-        console.error('Erreur API :', error);
-        throw error;
-      }
     },
   },
   getters: {
