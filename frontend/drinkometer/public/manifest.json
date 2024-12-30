@@ -1,0 +1,21 @@
+{
+    "name": "DrinkOMeter",
+    "short_name": "DrinkOMeter",
+    "description": "2025 verres, un défi, une année. Suivez votre compteur !",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f5f3ff",
+    "theme_color": "#9333ea",
+    "icons": [
+      {
+        "src": "/icons/icon-192x192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "/icons/icon-512x512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ]
+  }
