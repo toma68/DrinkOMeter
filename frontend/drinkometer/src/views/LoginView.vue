@@ -121,6 +121,8 @@ export default {
       email: this.loginEmail,
       password: this.loginPassword,
     });
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userInfos));
     this.$store.dispatch('saveToken', response.data.token);
     this.$store.dispatch('saveUser', response.data.userInfos);
     console.log('Connexion réussie :', response.data);

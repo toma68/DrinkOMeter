@@ -2,8 +2,10 @@ import { createStore } from 'vuex';
 
 const store = createStore({
   state: {
-    user: null, // Stocke les informations utilisateur
-    token: null, // Stocke le token JWT
+    state: {
+      user: JSON.parse(localStorage.getItem('user')) || null,
+      token: localStorage.getItem('token') || null,
+    },
   },
   mutations: {
     setUser(state, user) {
