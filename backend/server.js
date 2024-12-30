@@ -290,9 +290,6 @@ app.get('/user/:id/photos', async (req, res) => {
         attributes: ['id', 'filePath', 'uploadedAt'],
       });
   
-      if (photos.length === 0) {
-        return res.status(404).json({ error: 'No photos found for this user' });
-      }
   
       res.json(photos);
     } catch (err) {
