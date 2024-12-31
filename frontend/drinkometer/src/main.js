@@ -18,5 +18,7 @@ if (token && user) {
   api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 }
 
+
+
 // Créer et monter l'application
 createApp(App).use(router).use(store).mount('#app');

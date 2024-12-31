@@ -125,6 +125,7 @@ export default {
 
     localStorage.setItem('token', response.data.token);
     localStorage.setItem('user', JSON.stringify(response.data.userInfos));
+    localStorage.setItem('userId', JSON.stringify(response.data.userInfos.userId));
     this.$store.dispatch('saveToken', response.data.token);
     this.$store.dispatch('saveUser', response.data.userInfos);
     console.log('Connexion réussie :', response.data);

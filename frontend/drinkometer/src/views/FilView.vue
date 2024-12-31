@@ -57,8 +57,7 @@ export default {
     async fetchRecentPhotos() {
       try {
         const response = await api.get('/photos-recent');
-        const userId = this.$store.getters.getUser.userId;
-        console.log(response.data);
+        const userId = localStorage.getItem('userId'); 
         
         
     
@@ -84,6 +83,8 @@ export default {
         if (photo) {
           photo.likes = response.data.likes;
           photo.likedByCurrentUser = true;
+          photo.totalLikes += 1;
+
         }
       } catch (error) {
         if (error.response && error.response.status === 400) {

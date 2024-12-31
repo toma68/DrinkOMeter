@@ -135,7 +135,7 @@ export default {
       try {
         const user = localStorage.getItem('user');
         const token = localStorage.getItem('token');
-        const userId = user ? JSON.parse(user).userId : null;
+        const userId = localStorage.getItem('userId'); 
      
         const response = await api.get(`/user/${userId}/photos`);
         this.photos = response.data;
@@ -179,7 +179,7 @@ export default {
       // Récupérer l'ID utilisateur depuis le localStorage
       const user = localStorage.getItem('user');
       const token = localStorage.getItem('token');
-      const userId = user ? JSON.parse(user).userId : null;
+      const userId = localStorage.getItem('userId'); 
       
       console.log('userId', userId);
       console.log('token', token);
