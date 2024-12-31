@@ -17,6 +17,7 @@
         <!-- En-tête avec l'utilisateur et la date -->
         <div class="flex items-center mb-4">
           <span class="text-sm font-medium text-gray-700">Posté par {{ photo.User.username }}</span>
+          <span class="text-sm font-medium text-gray-700 mr-auto ml-auto">Boisson {{ photo.drinkCount }}</span>
           <span class="text-sm text-gray-500 ml-auto">{{ formatDate(photo.uploadedAt) }}</span>
         </div>
 

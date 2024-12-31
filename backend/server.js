@@ -56,6 +56,10 @@ const Photo = sequelize.define('Photo', {
       type: DataTypes.STRING, // Chemin de la photo
       allowNull: false,
     },
+    drinkCount: {
+      type: DataTypes.INTEGER, // Nombre de boissons associées à la photo
+      defaultValue: 0,
+    },
     uploadedAt: {
       type: DataTypes.DATE, // Date d'upload
       allowNull: false,
@@ -263,6 +267,7 @@ app.post('/addDrinkWithPhoto', upload.single('photo'), async (req, res) => {
       const newPhoto = await Photo.create({
         userId: user.id,
         filePath: `compressed-${req.file.filename}`,
+        drinkCount: user.drinkCount,
       });
   
       await user.save();
