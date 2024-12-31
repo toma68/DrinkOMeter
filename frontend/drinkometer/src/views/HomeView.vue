@@ -122,6 +122,39 @@ export default {
       this.infoVisible = false; // Cache le modal
     },
   },
+  async beforeRouteEnter(to, from, next) {
+    try {
+      // Récupérer l'ID utilisateur depuis le localStorage
+      const user = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
+      const userId = user ? JSON.parse(user).userId : null;
+      
+      console.log('userId', userId);
+      console.log('token', token);
+
+      if (!user || !token) {
+        throw new Error('Utilisateur non connecté ou token manquant');
+      }
+
+      // il faut déstringifier le user
+
+      // Récupérer les informations utilisateur depuis l'API
+      const response = await api.get(`/user/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Passer les données utilisateur au composant après la navigation
+      next((vm) => {
+        vm.$store.dispatch('saveUser', response.data);
+      });
+    } catch (error) {
+      console.error('Erreur de récupération des données utilisateur :', error.response?.data || error.message);
+      alert('Erreur de connexion. Veuillez vérifier votre connexion et réessayer.');
+      
+      // Redirige vers la page de connexion en cas d'erreur
+      next('/login');
+    }
+  },
 };
 </script>
 

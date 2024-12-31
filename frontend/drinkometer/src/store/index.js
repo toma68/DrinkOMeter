@@ -40,12 +40,37 @@ const store = createStore({
     saveDrinkCount({ commit }, drinkCount) {
       commit('setDrinkCount', drinkCount);
     },
+
+    async updateUser({ commit, state }) {
+      try {
+        const userId = localStorage.getItem('userId');
+        const token = localStorage.getItem('token');
+
+        if (!userId || !token) {
+          throw new Error('Utilisateur non connecté');
+        }
+
+        // Appeler l'API pour récupérer les données utilisateur
+        const response = await api.get(`/user/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // Mettre à jour le store avec les nouvelles données utilisateur
+        commit('saveUser', response.data);
+      } catch (error) {
+        console.error('Erreur lors de la mise à jour des données utilisateur :', error.message);
+        throw error;
+      }
+    },
   },
   getters: {
     isAuthenticated: (state) => !!state.user,
     getUser: (state) => state.user,
     getToken: (state) => state.token
   },
+
+
+
 });
 
 export default store;

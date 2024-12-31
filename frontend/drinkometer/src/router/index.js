@@ -25,6 +25,8 @@ const router = createRouter({
   routes,
 });
 
+
+
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && (store.state.token == null || store.state.user == null)) {
     next({ path: '/login', query: { redirect: to.fullPath } });
@@ -32,6 +34,7 @@ router.beforeEach((to, from, next) => {
     next();
   }
 });
+
 
 
 
