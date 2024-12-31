@@ -38,14 +38,7 @@
       </div>
     </div>
 
-    <!-- Bouton pour ajouter un verre -->
-    <button
-      @click="addDrink"
-      class="mt-8 w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-pink-500 hover:to-purple-500 text-white font-bold rounded-full text-4xl flex items-center justify-center shadow-lg focus:outline-none focus:ring-4 focus:ring-pink-200"
-    >
-      +
-    </button>
-
+   
     <button
       @click="$router.push('/phototake')"
       class="mt-8 w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-pink-500 hover:to-purple-500 text-white font-bold rounded-full text-4xl flex items-center justify-center shadow-lg focus:outline-none focus:ring-4 focus:ring-pink-200"
@@ -54,7 +47,7 @@
     </button>
 
     <!-- Message sous le bouton -->
-    <p class="text-sm text-gray-200 mt-2">Appuyez sur le bouton pour ajouter un verre</p>
+    <p class="text-sm text-gray-200 mt-2">Appuyez sur le bouton pour ajouter un verre (photo obligatoire !)</p>
 
     <!-- Bouton d'information -->
     <button
@@ -104,17 +97,7 @@ export default {
     },
   },
   methods: {
-    async addDrink() {
-      try {
-        const response = await api.post('/increment', {
-          token: this.$store.getters.getToken,
-        });
-        this.$store.dispatch('saveDrinkCount', response.data.drinkCount);
-      } catch (error) {
-        console.error('Erreur de connexion :', error.response?.data || error.message);
-        alert('Erreur de connexion. Vérifiez que vous êtes bien connecté à internet, puis réésayez.');
-      }
-    },
+   
     showInfo() {
       this.infoVisible = true; // Affiche le modal
     },
@@ -128,7 +111,7 @@ export default {
       const user = localStorage.getItem('user');
       const token = localStorage.getItem('token');
       const userId = user ? JSON.parse(user).userId : null;
-      
+
       console.log('userId', userId);
       console.log('token', token);
 
