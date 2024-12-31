@@ -77,7 +77,7 @@ const Photo = sequelize.define('Photo', {
   // Associations
   Like.belongsTo(User, { foreignKey: 'userId' });
   Like.belongsTo(Photo, { foreignKey: 'photoId' });
-  Photo.hasMany(Like, { foreignKey: 'photoId' });
+  Photo.hasMany(Like, { foreignKey: 'photoId', onDelete: 'CASCADE' });
   User.hasMany(Like, { foreignKey: 'userId' });
   User.hasMany(Photo, { foreignKey: 'userId' });
   Photo.belongsTo(User, { foreignKey: 'userId' });
@@ -336,11 +336,12 @@ app.delete('/photo/:id', async (req, res) => {
       }
   
       // Supprimer le fichier du serveur
-      const filePath = path.join(__dirname, photo.filePath);
-      fs.unlinkSync(filePath);
+        const filePath = path.join(__dirname, 'uploads', photo.filePath);
+        fs.unlinkSync(filePath);
 
-      // Supprimer l'entrée de la base de données
-      await photo.destroy();
+        // Supprimer la photo de la base de données
+        await photo.destroy();
+
   
       res.json({ message: 'Photo supprimée avec succès' });
     } catch (err) {

@@ -69,8 +69,8 @@
         <div class="flex justify-between items-center">
           <button
             @click="confirmDeletePhoto"
-            disabled
-            class="text-gray-500 font-medium text-sm hover:underline"
+            
+            class="text-red-500 font-medium text-sm hover:underline"
           >
             Supprimer
           </button>
