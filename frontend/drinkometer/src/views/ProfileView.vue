@@ -133,7 +133,11 @@ export default {
     },
     async fetchPhotos() {
       try {
-        const response = await api.get(`/user/${this.user.userId}/photos`);
+        const user = localStorage.getItem('user');
+        const token = localStorage.getItem('token');
+        const userId = user ? JSON.parse(user).userId : null;
+     
+        const response = await api.get(`/user/${userId}/photos`);
         this.photos = response.data;
       } catch (error) {
         console.error('Erreur lors de la récupération des photos :', error.response?.data || error.message);
