@@ -362,7 +362,7 @@ app.get('/photos-recent', async (req, res) => {
     try {
       const now = new Date();
       const yesterday = new Date();
-      yesterday.setDate(now.getDate() - 1);
+      yesterday.setDate(now.getDate() - 365);
   
       const photos = await Photo.findAll({
         where: {
