@@ -51,6 +51,10 @@
       >
         Se déconnecter
       </button>
+
+      <div class="text-sm text-gray-500 mt-4">
+        Cache actif : {{ cacheName }}
+      </div>
     </div>
 
     <!-- Modal pour afficher la photo en grand -->
@@ -103,6 +107,8 @@ export default {
       photos: [], // Stocke les photos récupérées
       baseURL: process.env.VUE_APP_API_URL || "http://localhost:3003/photos/", // URL du backend
       selectedPhoto: null, // Photo sélectionnée pour l'aperçu en grand
+      cacheName: 'Loading...', // Valeur par défaut
+
     };
   },
   computed: {
@@ -113,9 +119,25 @@ export default {
   },
   methods: {
     ...mapActions(['logout', 'saveDrinkCount']),
+
+    async getCacheName() {
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        return new Promise((resolve) => {
+          const messageChannel = new MessageChannel();
+          messageChannel.port1.onmessage = (event) => {
+            resolve(event.data.cacheName || 'Unknown Cache Name');
+          };
+          navigator.serviceWorker.controller.postMessage(
+            { type: 'GET_CACHE_NAME' },
+            [messageChannel.port2]
+          );
+        });
+      }
+      return 'Service Worker Not Available';
+    },
     getFileName(filePath) {
-    return filePath.split('/').pop(); // Récupère uniquement le nom du fichier
-  },
+      return filePath.split('/').pop(); // Récupère uniquement le nom du fichier
+    },
     async removeDrink() {
       try {
         if (this.user.drinkCount > 0) {

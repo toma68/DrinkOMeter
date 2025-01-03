@@ -22,3 +22,29 @@ if (token && user) {
 
 // Créer et monter l'application
 createApp(App).use(router).use(store).mount('#app');
+
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker
+    .register('/service-worker.js')
+    .then((registration) => {
+      console.log('Service Worker enregistré avec succès :', registration);
+
+      registration.onupdatefound = () => {
+        const installingWorker = registration.installing;
+        installingWorker.onstatechange = () => {
+          if (installingWorker.state === 'installed') {
+            if (navigator.serviceWorker.controller) {
+              // Nouvelle version disponible
+              console.log('Nouvelle version disponible.');
+              // Optionnel : Forcer le rechargement ou informer l'utilisateur
+              window.location.reload();
+            }
+          }
+        };
+      };
+    })
+    .catch((error) => {
+      console.error('Erreur lors de l’enregistrement du Service Worker :', error);
+    });
+}
