@@ -254,6 +254,7 @@ app.post('/addDrinkWithPhoto', upload.single('photo'), async (req, res) => {
       // Compression de l'image
       await sharp(inputPath)
         .resize(800) // Redimensionne la largeur à 800px (la hauteur est ajustée automatiquement)
+        .rotate()
         .jpeg({ quality: 70 }) // Convertit en JPEG avec une qualité de 70%
         .toFile(outputPath);
   
