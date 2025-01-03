@@ -424,6 +424,13 @@ app.post('/photo/:id/like', async (req, res) => {
     }
   });
 
+// upldoad a file on the server
+app.post('/upload', upload.single('file'), (req, res) => {
+    res.json({ message: 'File uploaded successfully', filename: req.file.filename });
+
+});
+
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
