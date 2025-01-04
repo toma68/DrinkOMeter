@@ -3,18 +3,23 @@
     <div class="w-full max-w-lg bg-white rounded-lg shadow-lg p-8">
       <h1 class="text-2xl font-bold text-gray-700 text-center mb-6">Mon Profil</h1>
       <div v-if="user" class="space-y-4">
+        <!-- Nom d'utilisateur -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Nom d'utilisateur</label>
           <div class="mt-1 block w-full p-3 border border-gray-300 rounded-lg bg-gray-100 shadow-sm sm:text-sm">
             {{ user.username }}
           </div>
         </div>
+
+        <!-- Adresse Email -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Adresse Email</label>
           <div class="mt-1 block w-full p-3 border border-gray-300 rounded-lg bg-gray-100 shadow-sm sm:text-sm">
             {{ user.email }}
           </div>
         </div>
+
+        <!-- Compteur de boissons -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Boissons</label>
           <div class="mt-1 block w-full p-3 border border-gray-300 rounded-lg bg-gray-100 shadow-sm sm:text-sm flex justify-between items-center">
@@ -27,6 +32,7 @@
             </button>
           </div>
         </div>
+
         <!-- Section des photos -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Mes Photos</label>
@@ -45,6 +51,8 @@
       <div v-else>
         <p class="text-center text-gray-500">Chargement des informations...</p>
       </div>
+
+      <!-- Bouton de déconnexion -->
       <button
         @click="logout"
         class="mt-6 w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-pink-500 hover:to-red-500 text-white font-medium py-3 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
@@ -52,8 +60,9 @@
         Se déconnecter
       </button>
 
+      <!-- Informations sur le cache -->
       <div class="text-sm text-gray-500 mt-4">
-        Cache actif : {{ cacheName }}
+        Drink'O'Meter-{{ cacheName }}
       </div>
     </div>
 
@@ -73,7 +82,6 @@
         <div class="flex justify-between items-center">
           <button
             @click="confirmDeletePhoto"
-            
             class="text-red-500 font-medium text-sm hover:underline"
           >
             Supprimer
@@ -107,8 +115,7 @@ export default {
       photos: [], // Stocke les photos récupérées
       baseURL: process.env.VUE_APP_API_URL || "http://localhost:3003/photos/", // URL du backend
       selectedPhoto: null, // Photo sélectionnée pour l'aperçu en grand
-      cacheName: 'Loading...', // Valeur par défaut
-
+      cacheName: 'Loading...', // Nom du cache actif
     };
   },
   computed: {
@@ -119,21 +126,27 @@ export default {
   },
   methods: {
     ...mapActions(['logout', 'saveDrinkCount']),
-
-    async getCacheName() {
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        return new Promise((resolve) => {
-          const messageChannel = new MessageChannel();
-          messageChannel.port1.onmessage = (event) => {
-            resolve(event.data.cacheName || 'Unknown Cache Name');
-          };
-          navigator.serviceWorker.controller.postMessage(
-            { type: 'GET_CACHE_NAME' },
-            [messageChannel.port2]
-          );
-        });
+    async fetchCacheName() {
+      try {
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+          const cacheName = await new Promise((resolve) => {
+            const messageChannel = new MessageChannel();
+            messageChannel.port1.onmessage = (event) => {
+              resolve(event.data.cacheName || 'Unknown Cache Name');
+            };
+            navigator.serviceWorker.controller.postMessage(
+              { type: 'GET_CACHE_NAME' },
+              [messageChannel.port2]
+            );
+          });
+          this.cacheName = cacheName;
+        } else {
+          this.cacheName = 'Service Worker Not Available';
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération du nom du cache :', error);
+        this.cacheName = 'Erreur de récupération';
       }
-      return 'Service Worker Not Available';
     },
     getFileName(filePath) {
       return filePath.split('/').pop(); // Récupère uniquement le nom du fichier
@@ -155,10 +168,7 @@ export default {
     },
     async fetchPhotos() {
       try {
-        const user = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
         const userId = localStorage.getItem('userId'); 
-     
         const response = await api.get(`/user/${userId}/photos`);
         this.photos = response.data;
       } catch (error) {
@@ -180,7 +190,7 @@ export default {
     async deletePhoto(photo) {
       try {
         const response = await api.delete(`/photo/${photo.id}`, {
-          data: { token: this.$store.getters.getToken }, // Inclure le token dans le corps
+          data: { token: this.$store.getters.getToken },
         });
 
         this.photos = this.photos.filter((p) => p.id !== photo.id); // Met à jour la liste des photos
@@ -190,42 +200,29 @@ export default {
         console.error('Erreur lors de la suppression de la photo :', error.response?.data || error.message);
         alert('Impossible de supprimer la photo.');
       }
-    },  
+    },
   },
   mounted() {
     this.fetchPhotos();
-    
+    this.fetchCacheName(); // Récupère le cache actif
   },
   async beforeRouteEnter(to, from, next) {
     try {
-      // Récupérer l'ID utilisateur depuis le localStorage
-      const user = localStorage.getItem('user');
-      const token = localStorage.getItem('token');
       const userId = localStorage.getItem('userId'); 
-      
-      console.log('userId', userId);
-      console.log('token', token);
+      const token = localStorage.getItem('token');
 
-      if (!user || !token) {
-        throw new Error('Utilisateur non connecté ou token manquant');
-      }
+      if (!userId || !token) throw new Error('Utilisateur non connecté ou token manquant');
 
-      // il faut déstringifier le user
-
-      // Récupérer les informations utilisateur depuis l'API
       const response = await api.get(`/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Passer les données utilisateur au composant après la navigation
       next((vm) => {
         vm.$store.dispatch('saveUser', response.data);
       });
     } catch (error) {
       console.error('Erreur de récupération des données utilisateur :', error.response?.data || error.message);
       alert('Erreur de connexion. Veuillez vérifier votre connexion et réessayer.');
-      
-      // Redirige vers la page de connexion en cas d'erreur
       next('/login');
     }
   },
