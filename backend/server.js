@@ -99,12 +99,12 @@ const Photo = sequelize.define('Photo', {
   User.hasMany(Like, { foreignKey: 'userId' });
   User.hasMany(Photo, { foreignKey: 'userId' });
   Photo.belongsTo(User, { foreignKey: 'userId' });
-  User.hasMany(DrinkDate, { foreignKey: 'userId' });
+  User.hasMany(DrinkDate, { foreignKey: 'userId', onDelete: 'CASCADE' });
 
 // Sync the database
 sequelize.sync({ alter: true }).then(() => {
-    console.log('Database synced');
-});
+    console.log('Database synchronized with updates!');
+  });
 
 // Routes
 // 1. Register
@@ -162,7 +162,8 @@ app.post('/increment', async (req, res) => {
 
         // Enregistre la date de la boisson
         await DrinkDate.create({ userId: user.id });
-        
+
+
 
         await user.save();
 
