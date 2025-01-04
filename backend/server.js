@@ -127,17 +127,29 @@ const Badge = sequelize.define('Badge', {
   
   // Associations
   Like.belongsTo(User, { foreignKey: 'userId' });
-  Like.belongsTo(Photo, { foreignKey: 'photoId' });
-  Photo.hasMany(Like, { foreignKey: 'photoId', onDelete: 'CASCADE' });
-  User.hasMany(Like, { foreignKey: 'userId' });
-  User.hasMany(Photo, { foreignKey: 'userId' });
-  Photo.belongsTo(User, { foreignKey: 'userId' });
-  User.hasMany(DrinkDate, { foreignKey: 'userId', onDelete: 'CASCADE' });
-  DrinkDate.belongsTo(User, { foreignKey: 'userId' });
-  User.hasMany(UserBadge, { foreignKey: 'userId', onDelete: 'CASCADE' });
-    UserBadge.belongsTo(User, { foreignKey: 'userId' });
-    Badge.hasMany(UserBadge, { foreignKey: 'badgeId', onDelete: 'CASCADE' });
-    UserBadge.belongsTo(Badge, { foreignKey: 'badgeId' });
+// Association entre Like et Photo
+Like.belongsTo(Photo, { foreignKey: 'photoId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+Photo.hasMany(Like, { foreignKey: 'photoId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+
+// Association entre Like et User
+Like.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+User.hasMany(Like, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+
+// Association entre Photo et User
+Photo.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+User.hasMany(Photo, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+
+// Association entre DrinkDate et User
+DrinkDate.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+User.hasMany(DrinkDate, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+
+// Association entre UserBadge et User
+UserBadge.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+User.hasMany(UserBadge, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+
+// Association entre UserBadge et Badge
+UserBadge.belongsTo(Badge, { foreignKey: 'badgeId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+Badge.hasMany(UserBadge, { foreignKey: 'badgeId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
 
 // Sync the database
 sequelize.sync({ alter: true }).then(() => {
