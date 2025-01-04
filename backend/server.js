@@ -90,6 +90,39 @@ const Photo = sequelize.define('Photo', {
     },
   });
 
+
+  // Badge model
+const Badge = sequelize.define('Badge', {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    iconPath: {
+      type: DataTypes.STRING, // Chemin de l'icône du badge
+      allowNull: true,
+    },
+  });
+  
+  // UserBadge model (relation utilisateur-badge)
+  const UserBadge = sequelize.define('UserBadge', {
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    badgeId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    earnedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+  });
   
   
   // Associations
@@ -100,6 +133,11 @@ const Photo = sequelize.define('Photo', {
   User.hasMany(Photo, { foreignKey: 'userId' });
   Photo.belongsTo(User, { foreignKey: 'userId' });
   User.hasMany(DrinkDate, { foreignKey: 'userId', onDelete: 'CASCADE' });
+  DrinkDate.belongsTo(User, { foreignKey: 'userId' });
+  User.hasMany(UserBadge, { foreignKey: 'userId', onDelete: 'CASCADE' });
+    UserBadge.belongsTo(User, { foreignKey: 'userId' });
+    Badge.hasMany(UserBadge, { foreignKey: 'badgeId', onDelete: 'CASCADE' });
+    UserBadge.belongsTo(Badge, { foreignKey: 'badgeId' });
 
 // Sync the database
 sequelize.sync({ alter: true }).then(() => {
