@@ -77,6 +77,20 @@ const Photo = sequelize.define('Photo', {
       allowNull: false,
     },
   });
+
+  const DrinkDate = sequelize.define('DrinkDate', {
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+  });
+
+  
   
   // Associations
   Like.belongsTo(User, { foreignKey: 'userId' });
@@ -85,11 +99,11 @@ const Photo = sequelize.define('Photo', {
   User.hasMany(Like, { foreignKey: 'userId' });
   User.hasMany(Photo, { foreignKey: 'userId' });
   Photo.belongsTo(User, { foreignKey: 'userId' });
+  User.hasMany(DrinkDate, { foreignKey: 'userId' });
 
 // Sync the database
-sequelize.sync({ alter: true });//supprimer
-sequelize.sync({ force: false }).then(() => {
-    console.log('Database connected and synced!');
+sequelize.sync({ alter: true }).then(() => {
+    console.log('Database synced');
 });
 
 // Routes
@@ -145,6 +159,11 @@ app.post('/increment', async (req, res) => {
         if (!user) return res.status(404).json({ error: 'User not found' });
 
         user.drinkCount += 1;
+
+        // Enregistre la date de la boisson
+        await DrinkDate.create({ userId: user.id });
+        
+
         await user.save();
 
         res.json({ message: 'Drink count updated', drinkCount: user.drinkCount });
@@ -197,6 +216,18 @@ app.post('/decrement', async (req, res) => {
 
         user.drinkCount -= 1;
         await user.save();
+
+        // remove the last drink date
+        const lastDrinkDate = await DrinkDate.findOne({
+            where: { userId: user.id },
+            order: [['date', 'DESC']],
+        });
+
+        if (lastDrinkDate) {
+            await lastDrinkDate.destroy();
+        }
+
+
 
         res.json({ message: 'Drink count updated', drinkCount: user.drinkCount });
     } catch (err) {
@@ -270,6 +301,10 @@ app.post('/addDrinkWithPhoto', upload.single('photo'), async (req, res) => {
         filePath: `compressed-${req.file.filename}`,
         drinkCount: user.drinkCount,
       });
+
+      // Enregistre la date de la boisson
+      await DrinkDate.create({ userId: user.id });
+
   
       await user.save();
   
