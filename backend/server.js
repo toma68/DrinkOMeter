@@ -102,7 +102,7 @@ const Photo = sequelize.define('Photo', {
   User.hasMany(DrinkDate, { foreignKey: 'userId', onDelete: 'CASCADE' });
 
 // Sync the database
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync({ force: true }).then(() => {
     console.log('Database synchronized with updates!');
   });
 
