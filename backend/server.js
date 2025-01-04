@@ -152,7 +152,7 @@ UserBadge.belongsTo(Badge, { foreignKey: 'badgeId', onDelete: 'CASCADE', onUpdat
 Badge.hasMany(UserBadge, { foreignKey: 'badgeId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
 
 // Sync the database
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync({ alter: false }).then(() => {
     console.log('Database synchronized with updates!');
   });
 
